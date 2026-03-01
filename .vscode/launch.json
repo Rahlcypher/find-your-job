@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-FijApplication<find-your-job>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.fij.FijApplication",
+            "projectName": "find-your-job",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
