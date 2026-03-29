@@ -3,8 +3,11 @@ package com.fij.services;
 import com.fij.dto.AuthResponse;
 import com.fij.dto.LoginRequest;
 import com.fij.dto.RegisterRequest;
+import com.fij.dto.RefreshTokenRequest;
 import com.fij.models.User;
+import com.fij.models.Role;
 import com.fij.repositories.UserRepository;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,6 +25,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final UserDetailsService userDetailsService;
 
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.findByEmail(request.email()).isPresent()) {
@@ -35,7 +39,7 @@ public class AuthService {
         user.setLastName(request.lastName());
         user.setPhone(request.phone());
         user.setLocation(request.location());
-        user.setRoles(request.roles());
+        user.setRoles(request.roles() != null ? request.roles() : Set.of(Role.ROLE_CANDIDATE));
 
         userRepository.save(user);
 
@@ -46,6 +50,7 @@ public class AuthService {
                 .build();
 
         String token = jwtService.generateToken(userDetails);
+        String refreshToken = jwtService.generateRefreshToken(userDetails);
 
         return new AuthResponse(
                 user.getId(),
@@ -55,7 +60,8 @@ public class AuthService {
                 user.getPhone(),
                 user.getLocation(),
                 user.getRoles(),
-                token
+                token,
+                refreshToken
         );
     }
 
@@ -74,6 +80,7 @@ public class AuthService {
                 .build();
 
         String token = jwtService.generateToken(userDetails);
+        String refreshToken = jwtService.generateRefreshToken(userDetails);
 
         return new AuthResponse(
                 user.getId(),
@@ -83,7 +90,40 @@ public class AuthService {
                 user.getPhone(),
                 user.getLocation(),
                 user.getRoles(),
-                token
+                token,
+                refreshToken
+        );
+    }
+
+    public AuthResponse refreshToken(RefreshTokenRequest request) {
+        final String email = jwtService.extractUsername(request.refreshToken());
+        
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        
+        UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
+                .username(user.getEmail())
+                .password(user.getPassword())
+                .roles(user.getRoles().stream().map(r -> r.name().replace("ROLE_", "")).toArray(String[]::new))
+                .build();
+        
+        if (!jwtService.isTokenValid(request.refreshToken(), userDetails)) {
+            throw new RuntimeException("Invalid refresh token");
+        }
+        
+        String token = jwtService.generateToken(userDetails);
+        String refreshToken = jwtService.generateRefreshToken(userDetails);
+        
+        return new AuthResponse(
+                user.getId(),
+                user.getEmail(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getPhone(),
+                user.getLocation(),
+                user.getRoles(),
+                token,
+                refreshToken
         );
     }
 }

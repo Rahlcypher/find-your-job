@@ -1,11 +1,11 @@
 package com.example.findyourjob_mobile.presentation.components
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Chat
+import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material.icons.automirrored.outlined.Chat
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Work
-import androidx.compose.material.icons.outlined.Chat
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Work
@@ -35,7 +35,7 @@ val bottomNavItems = listOf(
         unselectedIcon = Icons.Outlined.Home
     ),
     BottomNavItem(
-        label = "Jobs",
+        label = "Mes Candidatures",
         route = Screen.JobList.route,
         selectedIcon = Icons.Filled.Work,
         unselectedIcon = Icons.Outlined.Work
@@ -43,8 +43,8 @@ val bottomNavItems = listOf(
     BottomNavItem(
         label = "Messages",
         route = Screen.ChatList.route,
-        selectedIcon = Icons.Filled.Chat,
-        unselectedIcon = Icons.Outlined.Chat
+        selectedIcon = Icons.AutoMirrored.Filled.Chat,
+        unselectedIcon = Icons.AutoMirrored.Outlined.Chat
     ),
     BottomNavItem(
         label = "Profil",

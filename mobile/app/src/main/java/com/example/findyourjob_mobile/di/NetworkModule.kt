@@ -1,6 +1,9 @@
 package com.example.findyourjob_mobile.di
 
+import com.example.findyourjob_mobile.BuildConfig
 import com.example.findyourjob_mobile.data.remote.AuthApi
+import com.example.findyourjob_mobile.data.remote.JobApi
+import com.example.findyourjob_mobile.data.remote.JwtAuthenticator
 import com.example.findyourjob_mobile.data.remote.JwtInterceptor
 import com.example.findyourjob_mobile.data.remote.TokenManager
 import dagger.Module
@@ -20,8 +23,6 @@ import kotlinx.serialization.json.Json
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    private const val BASE_URL = "http://192.168.1.169:8080/"
-
     @Provides
     @Singleton
     fun provideJson(): Json = Json {
@@ -32,7 +33,9 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideOkHttpClient(
-        tokenManager: TokenManager
+        tokenManager: TokenManager,
+        jwtAuthenticator: JwtAuthenticator,
+        jwtInterceptor: JwtInterceptor
     ): OkHttpClient {
         val loggingInterceptor = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
@@ -40,7 +43,8 @@ object NetworkModule {
 
         return OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)
-            .addInterceptor(JwtInterceptor(tokenManager))
+            .addInterceptor(jwtInterceptor)
+            .authenticator(jwtAuthenticator)
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
@@ -53,7 +57,7 @@ object NetworkModule {
         okHttpClient: OkHttpClient,
         json: Json
     ): Retrofit = Retrofit.Builder()
-        .baseUrl(BASE_URL)
+        .baseUrl(BuildConfig.BASE_URL)
         .client(okHttpClient)
         .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
         .build()
@@ -62,4 +66,9 @@ object NetworkModule {
     @Singleton
     fun provideAuthApi(retrofit: Retrofit): AuthApi =
         retrofit.create(AuthApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideJobApi(retrofit: Retrofit): JobApi =
+        retrofit.create(JobApi::class.java)
 }

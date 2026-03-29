@@ -19,13 +19,13 @@
 - [x] Configurer BottomBar
 
 ## Phase 4 - Jobs
-- [ ] Créer DTOs Job
-- [ ] Créer JobApi
-- [ ] Créer JobRepository
-- [ ] Créer use cases (GetJobs, GetJobDetail, ApplyToJob)
-- [ ] Créer JobViewModel
-- [ ] Créer JobListScreen
-- [ ] Créer JobDetailScreen
+- [x] Créer DTOs Job
+- [x] Créer JobApi
+- [x] Créer JobRepository
+- [x] Créer use cases (GetJobs, GetJobDetail, ApplyToJob)
+- [x] Créer JobViewModel
+- [x] Créer JobListScreen
+- [x] Créer JobDetailScreen
 
 ## Phase 5 - Applications
 - [ ] Créer ApplicationApi

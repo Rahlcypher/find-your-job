@@ -8,11 +8,12 @@ import javax.inject.Inject
 class JwtInterceptor @Inject constructor(
     private val tokenManager: TokenManager
 ) : Interceptor {
+
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest = chain.request()
-        
+
         val token = runBlocking { tokenManager.getToken() }
-        
+
         return if (token != null) {
             val newRequest = originalRequest.newBuilder()
                 .header("Authorization", "Bearer $token")

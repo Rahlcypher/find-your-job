@@ -36,6 +36,10 @@ class TokenManager @Inject constructor(
         return context.dataStore.data.first()[TOKEN_KEY]
     }
 
+    suspend fun getRefreshToken(): String? {
+        return context.dataStore.data.first()[REFRESH_TOKEN_KEY]
+    }
+
     suspend fun saveToken(token: String, refreshToken: String? = null) {
         context.dataStore.edit { prefs ->
             prefs[TOKEN_KEY] = token

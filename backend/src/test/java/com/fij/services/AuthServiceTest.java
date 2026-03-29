@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
@@ -38,11 +39,14 @@ class AuthServiceTest {
     @Mock
     private AuthenticationManager authenticationManager;
 
+    @Mock
+    private UserDetailsService userDetailsService;
+
     private AuthService authService;
 
     @BeforeEach
     void setUp() {
-        authService = new AuthService(userRepository, passwordEncoder, jwtService, authenticationManager);
+        authService = new AuthService(userRepository, passwordEncoder, jwtService, authenticationManager, userDetailsService);
     }
 
     @Test
@@ -59,6 +63,7 @@ class AuthServiceTest {
             return u;
         });
         when(jwtService.generateToken(any(UserDetails.class))).thenReturn("jwtToken");
+        when(jwtService.generateRefreshToken(any(UserDetails.class))).thenReturn("refreshToken");
 
         AuthResponse response = authService.register(request);
 
@@ -67,6 +72,7 @@ class AuthServiceTest {
         assertEquals("John", response.firstName());
         assertEquals("Doe", response.lastName());
         assertEquals("jwtToken", response.token());
+        assertEquals("refreshToken", response.refreshToken());
     }
 
     @Test
@@ -94,12 +100,14 @@ class AuthServiceTest {
         when(authenticationManager.authenticate(any())).thenReturn(null);
         when(userRepository.findByEmail("test@test.com")).thenReturn(Optional.of(user));
         when(jwtService.generateToken(any(UserDetails.class))).thenReturn("jwtToken");
+        when(jwtService.generateRefreshToken(any(UserDetails.class))).thenReturn("refreshToken");
 
         AuthResponse response = authService.login(request);
 
         assertNotNull(response);
         assertEquals("test@test.com", response.email());
         assertEquals("jwtToken", response.token());
+        assertEquals("refreshToken", response.refreshToken());
     }
 
     @Test

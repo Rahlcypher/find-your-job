@@ -13,7 +13,7 @@ class RegisterUseCase @Inject constructor(
         password: String,
         firstName: String,
         lastName: String,
-        roles: List<String> = listOf("CANDIDATE")
+        roles: List<String> = listOf("ROLE_CANDIDATE")
     ): Result<AuthResponse> {
         if (email.isBlank()) return Result.Error("Email requis")
         if (password.isBlank()) return Result.Error("Mot de passe requis")

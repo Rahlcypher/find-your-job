@@ -7,6 +7,7 @@ import com.example.findyourjob_mobile.data.remote.dto.LoginRequest
 import com.example.findyourjob_mobile.data.remote.dto.RegisterRequest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -22,13 +23,28 @@ class AuthRepository @Inject constructor(
 ) {
     val isLoggedIn: Flow<Boolean> = tokenManager.token.map { it != null }
 
+    private fun parseErrorMessage(e: retrofit2.HttpException): String {
+        return try {
+            val errorBody = e.response()?.errorBody()?.string()
+            if (errorBody != null) {
+                val json = Json { ignoreUnknownKeys = true }
+                val errorResponse = json.decodeFromString<Map<String, String>>(errorBody)
+                errorResponse["error"] ?: "Erreur ${e.code()}"
+            } else {
+                "Erreur ${e.code()}"
+            }
+        } catch (ex: Exception) {
+            "Erreur ${e.code()}"
+        }
+    }
+
     suspend fun login(email: String, password: String): Result<AuthResponse> {
         return try {
             val response = authApi.login(LoginRequest(email, password))
             tokenManager.saveToken(response.token, response.refreshToken)
             Result.Success(response)
         } catch (e: retrofit2.HttpException) {
-            Result.Error(e.message ?: "Erreur de connexion", e.code())
+            Result.Error(parseErrorMessage(e), e.code())
         } catch (e: Exception) {
             Result.Error(e.message ?: "Erreur réseau")
         }
@@ -39,7 +55,7 @@ class AuthRepository @Inject constructor(
         password: String,
         firstName: String,
         lastName: String,
-        roles: List<String> = listOf("CANDIDATE")
+        roles: List<String> = listOf("ROLE_CANDIDATE")
     ): Result<AuthResponse> {
         return try {
             val response = authApi.register(
@@ -48,7 +64,7 @@ class AuthRepository @Inject constructor(
             tokenManager.saveToken(response.token, response.refreshToken)
             Result.Success(response)
         } catch (e: retrofit2.HttpException) {
-            Result.Error(e.message ?: "Erreur d'inscription", e.code())
+            Result.Error(parseErrorMessage(e), e.code())
         } catch (e: Exception) {
             Result.Error(e.message ?: "Erreur réseau")
         }

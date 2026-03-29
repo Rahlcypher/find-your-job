@@ -11,5 +11,6 @@ public record AuthResponse(
     String phone,
     String location,
     Set<Role> roles,
-    String token
+    String token,
+    String refreshToken
 ) {}

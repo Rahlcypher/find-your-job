@@ -14,7 +14,7 @@ data class RegisterRequest(
     val password: String,
     val firstName: String,
     val lastName: String,
-    val roles: List<String> = listOf("CANDIDATE")
+    val roles: List<String> = listOf("ROLE_CANDIDATE")
 )
 
 @Serializable
@@ -26,4 +26,9 @@ data class AuthResponse(
     val firstName: String,
     val lastName: String,
     val roles: List<String>
+)
+
+@Serializable
+data class RefreshTokenRequest(
+    val refreshToken: String
 )

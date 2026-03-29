@@ -3,6 +3,7 @@ package com.fij.controllers;
 import com.fij.dto.AuthResponse;
 import com.fij.dto.LoginRequest;
 import com.fij.dto.RegisterRequest;
+import com.fij.dto.RefreshTokenRequest;
 import com.fij.services.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,5 +25,10 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
+        return ResponseEntity.ok(authService.refreshToken(request));
     }
 }
