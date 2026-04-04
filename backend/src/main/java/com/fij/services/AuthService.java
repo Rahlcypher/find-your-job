@@ -4,6 +4,7 @@ import com.fij.dto.AuthResponse;
 import com.fij.dto.LoginRequest;
 import com.fij.dto.RegisterRequest;
 import com.fij.dto.RefreshTokenRequest;
+import com.fij.dto.UpdateProfileRequest;
 import com.fij.models.User;
 import com.fij.models.Role;
 import com.fij.repositories.UserRepository;
@@ -125,5 +126,21 @@ public class AuthService {
                 token,
                 refreshToken
         );
+    }
+
+    public User getCurrentUser() {
+        String email = org.springframework.security.core.context.SecurityContextHolder.getContext()
+                .getAuthentication().getName();
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
+
+    public User updateProfile(UpdateProfileRequest request) {
+        User user = getCurrentUser();
+        if (request.firstName() != null) user.setFirstName(request.firstName());
+        if (request.lastName() != null) user.setLastName(request.lastName());
+        if (request.phone() != null) user.setPhone(request.phone());
+        if (request.location() != null) user.setLocation(request.location());
+        return userRepository.save(user);
     }
 }

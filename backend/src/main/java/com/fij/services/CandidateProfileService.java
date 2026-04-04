@@ -13,7 +13,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,8 +46,8 @@ public class CandidateProfileService {
         exp.setTitle(request.title());
         exp.setCompany(request.company());
         exp.setDescription(request.description());
-        exp.setStartDate(request.startDate());
-        exp.setEndDate(request.endDate());
+        exp.setStartDate(parseDate(request.startDate()));
+        exp.setEndDate(parseDate(request.endDate()));
         exp.setCurrentJob(request.currentJob());
         exp.setUser(getCurrentUser());
         return experienceRepository.save(exp);
@@ -53,6 +55,18 @@ public class CandidateProfileService {
 
     public void deleteExperience(Long id) {
         experienceRepository.deleteById(id);
+    }
+
+    public Experience updateExperience(Long id, ExperienceRequest request) {
+        Experience exp = experienceRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Experience not found"));
+        exp.setTitle(request.title());
+        exp.setCompany(request.company());
+        exp.setDescription(request.description());
+        exp.setStartDate(parseDate(request.startDate()));
+        exp.setEndDate(parseDate(request.endDate()));
+        exp.setCurrentJob(request.currentJob());
+        return experienceRepository.save(exp);
     }
 
     public List<Education> getEducations() {
@@ -64,14 +78,25 @@ public class CandidateProfileService {
         edu.setDegree(request.degree());
         edu.setSchool(request.school());
         edu.setFieldOfStudy(request.fieldOfStudy());
-        edu.setStartDate(request.startDate());
-        edu.setEndDate(request.endDate());
+        edu.setStartDate(parseDate(request.startDate()));
+        edu.setEndDate(parseDate(request.endDate()));
         edu.setUser(getCurrentUser());
         return educationRepository.save(edu);
     }
 
     public void deleteEducation(Long id) {
         educationRepository.deleteById(id);
+    }
+
+    public Education updateEducation(Long id, EducationRequest request) {
+        Education edu = educationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Education not found"));
+        edu.setDegree(request.degree());
+        edu.setSchool(request.school());
+        edu.setFieldOfStudy(request.fieldOfStudy());
+        edu.setStartDate(parseDate(request.startDate()));
+        edu.setEndDate(parseDate(request.endDate()));
+        return educationRepository.save(edu);
     }
 
     public List<Skill> getSkills() {
@@ -90,6 +115,14 @@ public class CandidateProfileService {
         skillRepository.deleteById(id);
     }
 
+    public Skill updateSkill(Long id, SkillRequest request) {
+        Skill skill = skillRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Skill not found"));
+        skill.setName(request.name());
+        skill.setLevel(request.level());
+        return skillRepository.save(skill);
+    }
+
     public List<Language> getLanguages() {
         return languageRepository.findByUserId(getCurrentUser().getId());
     }
@@ -104,6 +137,14 @@ public class CandidateProfileService {
 
     public void deleteLanguage(Long id) {
         languageRepository.deleteById(id);
+    }
+
+    public Language updateLanguage(Long id, LanguageRequest request) {
+        Language lang = languageRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Language not found"));
+        lang.setName(request.name());
+        lang.setLevel(request.level());
+        return languageRepository.save(lang);
     }
 
     public JobPreference getJobPreference() {
@@ -162,5 +203,17 @@ public class CandidateProfileService {
             } catch (IOException e) {}
             documentRepository.delete(doc);
         });
+    }
+
+    private LocalDate parseDate(String date) {
+        if (date == null || date.isBlank()) return null;
+        try {
+            if (date.length() == 7) {
+                return LocalDate.parse(date + "-01", DateTimeFormatter.ISO_LOCAL_DATE);
+            }
+            return LocalDate.parse(date, DateTimeFormatter.ISO_LOCAL_DATE);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

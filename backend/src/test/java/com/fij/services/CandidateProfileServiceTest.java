@@ -12,7 +12,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -81,7 +80,7 @@ class CandidateProfileServiceTest {
     void addExperience_Success_CreatesExperience() {
         ExperienceRequest request = new ExperienceRequest(
             "Developer", "TechCorp", "Description",
-            LocalDate.of(2020, 1, 1), LocalDate.of(2023, 12, 31), false
+            "2020-01-01", "2023-12-31", false
         );
 
         when(userRepository.findByEmail("test@test.com")).thenReturn(Optional.of(testUser));
@@ -123,7 +122,7 @@ class CandidateProfileServiceTest {
     void addEducation_Success_CreatesEducation() {
         EducationRequest request = new EducationRequest(
             "Bachelor", "University", "Computer Science",
-            LocalDate.of(2016, 9, 1), LocalDate.of(2020, 6, 30)
+            "2016-09-01", "2020-06-30"
         );
 
         when(userRepository.findByEmail("test@test.com")).thenReturn(Optional.of(testUser));

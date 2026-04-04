@@ -34,6 +34,11 @@ public class CandidateController {
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping("/experiences/{id}")
+    public ResponseEntity<Experience> updateExperience(@PathVariable Long id, @RequestBody ExperienceRequest request) {
+        return ResponseEntity.ok(candidateProfileService.updateExperience(id, request));
+    }
+
     @GetMapping("/educations")
     public ResponseEntity<List<Education>> getEducations() {
         return ResponseEntity.ok(candidateProfileService.getEducations());
@@ -48,6 +53,11 @@ public class CandidateController {
     public ResponseEntity<Void> deleteEducation(@PathVariable Long id) {
         candidateProfileService.deleteEducation(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/educations/{id}")
+    public ResponseEntity<Education> updateEducation(@PathVariable Long id, @RequestBody EducationRequest request) {
+        return ResponseEntity.ok(candidateProfileService.updateEducation(id, request));
     }
 
     @GetMapping("/skills")
@@ -66,6 +76,11 @@ public class CandidateController {
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping("/skills/{id}")
+    public ResponseEntity<Skill> updateSkill(@PathVariable Long id, @RequestBody SkillRequest request) {
+        return ResponseEntity.ok(candidateProfileService.updateSkill(id, request));
+    }
+
     @GetMapping("/languages")
     public ResponseEntity<List<Language>> getLanguages() {
         return ResponseEntity.ok(candidateProfileService.getLanguages());
@@ -80,6 +95,11 @@ public class CandidateController {
     public ResponseEntity<Void> deleteLanguage(@PathVariable Long id) {
         candidateProfileService.deleteLanguage(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/languages/{id}")
+    public ResponseEntity<Language> updateLanguage(@PathVariable Long id, @RequestBody LanguageRequest request) {
+        return ResponseEntity.ok(candidateProfileService.updateLanguage(id, request));
     }
 
     @GetMapping("/preferences")
