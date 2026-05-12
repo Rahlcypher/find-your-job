@@ -63,8 +63,22 @@ public class JobService {
         return applicationRepository.save(app);
     }
 
-    public List<Application> getMyApplications() {
-        return applicationRepository.findByCandidateId(getCurrentUser().getId());
+    public List<ApplicationResponse> getMyApplications() {
+        List<Application> applications = applicationRepository.findByCandidateId(getCurrentUser().getId());
+        return applications.stream()
+                .map(app -> new ApplicationResponse(
+                        app.getId(),
+                        app.getJob().getId(),
+                        app.getJob().getTitle(),
+                        app.getJob().getCompany(),
+                        app.getJob().getLocation(),
+                        app.getCandidate().getId(),
+                        app.getCandidate().getFirstName() + " " + app.getCandidate().getLastName(),
+                        app.getStatus(),
+                        app.getCoverLetter(),
+                        app.getAppliedAt()
+                ))
+                .toList();
     }
 
     public Application withdrawApplication(Long applicationId) {

@@ -3,10 +3,10 @@ package com.example.findyourjob_mobile.presentation.components
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.automirrored.outlined.Chat
-import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.BusinessCenter
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Work
-import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.BusinessCenter
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Work
 import androidx.compose.material3.Icon
@@ -20,33 +20,33 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.findyourjob_mobile.navigation.Screen
 
-data class BottomNavItem(
+data class RecruiterNavItem(
     val label: String,
     val route: String,
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector
 )
 
-val bottomNavItems = listOf(
-    BottomNavItem(
-        label = "Accueil",
-        route = Screen.Home.route,
-        selectedIcon = Icons.Filled.Home,
-        unselectedIcon = Icons.Outlined.Home
+val recruiterNavItems = listOf(
+    RecruiterNavItem(
+        label = "Mes Jobs",
+        route = Screen.RecruiterJobs.route,
+        selectedIcon = Icons.Filled.BusinessCenter,
+        unselectedIcon = Icons.Outlined.BusinessCenter
     ),
-    BottomNavItem(
+    RecruiterNavItem(
         label = "Candidatures",
-        route = Screen.JobList.route,
+        route = Screen.RecruiterApplications.route,
         selectedIcon = Icons.Filled.Work,
         unselectedIcon = Icons.Outlined.Work
     ),
-    BottomNavItem(
+    RecruiterNavItem(
         label = "Messages",
         route = Screen.ChatList.route,
         selectedIcon = Icons.AutoMirrored.Filled.Chat,
         unselectedIcon = Icons.AutoMirrored.Outlined.Chat
     ),
-    BottomNavItem(
+    RecruiterNavItem(
         label = "Profil",
         route = Screen.Profile.route,
         selectedIcon = Icons.Filled.Person,
@@ -55,19 +55,19 @@ val bottomNavItems = listOf(
 )
 
 @Composable
-fun BottomNavigationBar(navController: NavController) {
+fun RecruiterBottomNavigationBar(navController: NavController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
     NavigationBar {
-        bottomNavItems.forEach { item ->
+        recruiterNavItems.forEach { item ->
             val isSelected = currentRoute == item.route
             NavigationBarItem(
                 selected = isSelected,
                 onClick = {
                     if (currentRoute != item.route) {
                         navController.navigate(item.route) {
-                            popUpTo(Screen.Home.route) {
+                            popUpTo(Screen.RecruiterJobs.route) {
                                 saveState = true
                             }
                             launchSingleTop = true

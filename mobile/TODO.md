@@ -18,23 +18,34 @@
 - [x] Créer NavGraph
 - [x] Configurer BottomBar
 
-## Phase 4 - Jobs
+## Phase 4 - Jobs (Candidat)
 - [x] Créer DTOs Job
 - [x] Créer JobApi
 - [x] Créer JobRepository
 - [x] Créer use cases (GetJobs, GetJobDetail, ApplyToJob)
 - [x] Créer JobViewModel
-- [x] Créer JobListScreen
+- [x] Créer HomeScreen (liste jobs)
 - [x] Créer JobDetailScreen
 
-## Phase 5 - Applications
-- [ ] Créer ApplicationApi
-- [ ] Créer ApplicationRepository
-- [ ] Créer use cases (GetMyApplications)
-- [ ] Créer ApplicationViewModel
-- [ ] Créer MyApplicationsScreen
+## Phase 5 - Applications (Candidat)
+- [x] Créer ApplicationApi
+- [x] Créer ApplicationRepository
+- [x] Créer use cases (GetMyApplications)
+- [x] Créer ApplicationViewModel
+- [x] Créer ApplicationsScreen (candidatures envoyées)
 
-## Phase 6 - Profil
+## Phase 6 - Recruteur
+- [x] Créer RecruiterApi
+- [x] Créer RecruiterRepository
+- [x] Créer RecruiterViewModel
+- [x] Créer MyJobsScreen (jobs du recruteur)
+- [x] Créer JobFormScreen (créer/modifier job)
+- [x] Créer ApplicationsReceivedScreen (candidatures reçues)
+- [x] Gérer userRole (TokenManager, AuthRepository, AuthViewModel)
+- [x] Créer RecruiterBottomNavigationBar
+- [x] Intégration navigation par rôle (NavGraph)
+
+## Phase 7 - Profil
 - [ ] Créer ProfileApi
 - [ ] Créer ProfileRepository
 - [ ] Créer use cases (GetProfile, UpdateProfile)
@@ -42,7 +53,7 @@
 - [ ] Créer ProfileScreen
 - [ ] Créer EditProfileScreen
 
-## Phase 7 - Chat
+## Phase 8 - Chat
 - [ ] Configurer WebSocket client
 - [ ] Créer ChatApi
 - [ ] Créer ChatRepository
@@ -50,7 +61,7 @@
 - [ ] Créer ChatListScreen
 - [ ] Créer ConversationScreen
 
-## Phase 8 - Sécurité & Robustesse
+## Phase 9 - Sécurité & Robustesse
 - [ ] Gestion 401 → auto logout
 - [ ] Gestion 403
 - [ ] Retry policy

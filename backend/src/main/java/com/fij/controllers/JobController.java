@@ -37,7 +37,7 @@ public class JobController {
     }
 
     @GetMapping("/my-applications")
-    public ResponseEntity<List<Application>> getMyApplications() {
+    public ResponseEntity<List<ApplicationResponse>> getMyApplications() {
         return ResponseEntity.ok(jobService.getMyApplications());
     }
 

@@ -1,16 +1,33 @@
-# version: '3.8'
 services:
   db:
-    image: postgis/postgis:15-3.3 # Image officielle avec Postgres + PostGIS
+    image: postgis/postgis:15-3.3
     container_name: find_your_job_db
     environment:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=rahlofpgsql
       - POSTGRES_DB=fyj_database
     ports:
-      - "5432:5432" # Relie le port du container à ton PC
+      - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data # Garde tes données même si on éteint
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d fyj_database"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  backend:
+    build: .
+    container_name: find_your_job_backend
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/fyj_database
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=rahlofpgsql
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   postgres_data:

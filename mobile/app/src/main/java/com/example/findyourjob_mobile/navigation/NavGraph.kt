@@ -1,8 +1,7 @@
 package com.example.findyourjob_mobile.navigation
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -11,6 +10,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.findyourjob_mobile.presentation.screens.auth.LoginScreen
@@ -20,8 +20,12 @@ import com.example.findyourjob_mobile.presentation.screens.chat.ChatListScreen
 import com.example.findyourjob_mobile.presentation.screens.home.HomeScreen
 import com.example.findyourjob_mobile.presentation.screens.jobs.JobDetailScreen
 import com.example.findyourjob_mobile.presentation.screens.profile.ProfileScreen
+import com.example.findyourjob_mobile.presentation.screens.recruiter.MyJobsScreen
+import com.example.findyourjob_mobile.presentation.screens.recruiter.JobFormScreen
+import com.example.findyourjob_mobile.presentation.screens.recruiter.ApplicationsReceivedScreen
 import com.example.findyourjob_mobile.presentation.viewmodel.AuthViewModel
 import com.example.findyourjob_mobile.presentation.components.BottomNavigationBar
+import com.example.findyourjob_mobile.presentation.components.RecruiterBottomNavigationBar
 
 @Composable
 fun NavGraph(
@@ -30,6 +34,7 @@ fun NavGraph(
     modifier: Modifier = Modifier
 ) {
     val isLoggedIn by authViewModel.isLoggedIn.collectAsStateWithLifecycle()
+    val userRole by authViewModel.userRole.collectAsStateWithLifecycle()
 
     val startDestination = Screen.Login.route
 
@@ -67,6 +72,7 @@ fun NavGraph(
         composable(Screen.Main.route) {
             MainScreen(
                 isLoggedIn = isLoggedIn,
+                userRole = userRole,
                 onLogout = {
                     authViewModel.logout()
                     navController.navigate(Screen.Login.route) {
@@ -81,9 +87,10 @@ fun NavGraph(
 @Composable
 fun MainScreen(
     isLoggedIn: Boolean,
+    userRole: String?,
     onLogout: () -> Unit
 ) {
-    val navController = androidx.navigation.compose.rememberNavController()
+    val navController = rememberNavController()
 
     LaunchedEffect(isLoggedIn) {
         if (!isLoggedIn) {
@@ -97,46 +104,83 @@ fun MainScreen(
         return
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            Box(modifier = Modifier.weight(1f)) {
-                NavHost(
-                    navController = navController,
-                    startDestination = Screen.Home.route
-                ) {
-                    composable(Screen.Home.route) {
-                        HomeScreen(
-                            onJobClick = { jobId ->
-                                navController.navigate(Screen.JobDetail.createRoute(jobId))
-                            }
-                        )
-                    }
+    val isRecruiter = userRole == "ROLE_RECRUITER"
 
-                    composable(Screen.JobList.route) {
-                        ApplicationsScreen()
-                    }
+    Scaffold(
+        bottomBar = {
+            if (isRecruiter) {
+                RecruiterBottomNavigationBar(navController = navController)
+            } else {
+                BottomNavigationBar(navController = navController)
+            }
+        }
+    ) { paddingValues ->
+        NavHost(
+            navController = navController,
+            startDestination = if (isRecruiter) Screen.RecruiterJobs.route else Screen.Home.route,
+            modifier = Modifier.padding(paddingValues)
+        ) {
+            if (isRecruiter) {
+                composable(Screen.RecruiterJobs.route) {
+                    MyJobsScreen(
+                        onCreateJob = { navController.navigate(Screen.RecruiterJobForm.createRoute()) },
+                        onJobClick = { jobId -> navController.navigate(Screen.RecruiterJobForm.createRoute(jobId)) }
+                    )
+                }
 
-                    composable(
-                        route = Screen.JobDetail.route,
-                        arguments = listOf(navArgument("jobId") { type = NavType.LongType })
-                    ) { backStackEntry ->
-                        val jobId = backStackEntry.arguments?.getLong("jobId") ?: return@composable
-                        JobDetailScreen(
-                            jobId = jobId,
-                            onNavigateBack = { navController.popBackStack() }
-                        )
-                    }
+                composable(Screen.RecruiterJobForm.route) { backStackEntry ->
+                    val jobIdStr = backStackEntry.arguments?.getString("jobId")
+                    val jobId = jobIdStr?.toLongOrNull()
+                    JobFormScreen(
+                        jobId = jobId,
+                        onBack = { navController.popBackStack() },
+                        onSuccess = { navController.popBackStack() }
+                    )
+                }
 
-                    composable(Screen.ChatList.route) {
-                        ChatListScreen()
-                    }
+                composable(Screen.RecruiterApplications.route) {
+                    ApplicationsReceivedScreen()
+                }
 
-                    composable(Screen.Profile.route) {
-                        ProfileScreen()
-                    }
+                composable(Screen.ChatList.route) {
+                    ChatListScreen()
+                }
+
+                composable(Screen.Profile.route) {
+                    ProfileScreen()
+                }
+            } else {
+                composable(Screen.Home.route) {
+                    HomeScreen(
+                        onJobClick = { jobId ->
+                            navController.navigate(Screen.JobDetail.createRoute(jobId))
+                        }
+                    )
+                }
+
+                composable(Screen.JobList.route) {
+                    ApplicationsScreen()
+                }
+
+                composable(
+                    route = Screen.JobDetail.route,
+                    arguments = listOf(navArgument("jobId") { type = NavType.LongType })
+                ) { backStackEntry ->
+                    val jobId = backStackEntry.arguments?.getLong("jobId") ?: return@composable
+                    JobDetailScreen(
+                        jobId = jobId,
+                        onNavigateBack = { navController.popBackStack() }
+                    )
+                }
+
+                composable(Screen.ChatList.route) {
+                    ChatListScreen()
+                }
+
+                composable(Screen.Profile.route) {
+                    ProfileScreen()
                 }
             }
-            BottomNavigationBar(navController = navController)
         }
     }
 }

@@ -31,7 +31,32 @@ data class ApplicationRequest(
 @Serializable
 data class ApplicationResponse(
     val id: Long,
+    val jobId: Long,
+    val jobTitle: String? = null,
+    val company: String? = null,
+    val location: String? = null,
+    val candidateId: Long? = null,
+    val candidateName: String? = null,
     val status: String? = null,
     val coverLetter: String? = null,
     val appliedAt: String? = null
+)
+
+@Serializable
+data class JobRequest(
+    val title: String,
+    val description: String? = null,
+    val company: String? = null,
+    val location: String? = null,
+    val salaryMin: Int? = null,
+    val salaryMax: Int? = null,
+    val jobType: String? = null,
+    val workSchedule: String? = null,
+    val remotePolicy: String? = null,
+    val duration: Int? = null
+)
+
+@Serializable
+data class StatusUpdateRequest(
+    val status: String
 )

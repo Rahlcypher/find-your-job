@@ -1,7 +1,8 @@
 package com.fij.controllers;
 
-import com.fij.dto.*;
-import com.fij.models.*;
+import com.fij.dto.ApplicationResponse;
+import com.fij.dto.JobRequest;
+import com.fij.dto.JobResponse;
 import com.fij.services.RecruiterService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,23 +17,18 @@ public class RecruiterController {
 
     private final RecruiterService recruiterService;
 
-    @PostMapping("/jobs")
-    public ResponseEntity<Job> createJob(@RequestBody JobRequest request) {
-        return ResponseEntity.ok(recruiterService.createJob(request));
-    }
-
     @GetMapping("/jobs")
-    public ResponseEntity<List<Job>> getMyJobs() {
+    public ResponseEntity<List<JobResponse>> getMyJobs() {
         return ResponseEntity.ok(recruiterService.getMyJobs());
     }
 
-    @GetMapping("/jobs/{id}")
-    public ResponseEntity<Job> getJob(@PathVariable Long id) {
-        return ResponseEntity.ok(recruiterService.getJob(id));
+    @PostMapping("/jobs")
+    public ResponseEntity<JobResponse> createJob(@RequestBody JobRequest request) {
+        return ResponseEntity.ok(recruiterService.createJob(request));
     }
 
     @PutMapping("/jobs/{id}")
-    public ResponseEntity<Job> updateJob(@PathVariable Long id, @RequestBody JobRequest request) {
+    public ResponseEntity<JobResponse> updateJob(@PathVariable Long id, @RequestBody JobRequest request) {
         return ResponseEntity.ok(recruiterService.updateJob(id, request));
     }
 
@@ -42,15 +38,22 @@ public class RecruiterController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/jobs/{jobId}/applications")
-    public ResponseEntity<List<Application>> getApplications(@PathVariable Long jobId) {
-        return ResponseEntity.ok(recruiterService.getApplicationsForJob(jobId));
+    @GetMapping("/jobs/{id}/applications")
+    public ResponseEntity<List<ApplicationResponse>> getApplicationsForJob(@PathVariable Long id) {
+        return ResponseEntity.ok(recruiterService.getApplicationsForJob(id));
     }
 
-    @PatchMapping("/applications/{id}/status")
-    public ResponseEntity<Application> updateApplicationStatus(
-            @PathVariable Long id, 
-            @RequestParam String status) {
-        return ResponseEntity.ok(recruiterService.updateApplicationStatus(id, status));
+    @GetMapping("/applications")
+    public ResponseEntity<List<ApplicationResponse>> getAllMyApplications() {
+        return ResponseEntity.ok(recruiterService.getAllMyApplications());
     }
+
+    @PutMapping("/applications/{id}/status")
+    public ResponseEntity<ApplicationResponse> updateApplicationStatus(
+            @PathVariable Long id,
+            @RequestBody StatusUpdateRequest request) {
+        return ResponseEntity.ok(recruiterService.updateApplicationStatus(id, request.status()));
+    }
+
+    public record StatusUpdateRequest(String status) {}
 }

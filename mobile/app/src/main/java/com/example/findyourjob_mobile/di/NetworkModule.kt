@@ -5,6 +5,8 @@ import com.example.findyourjob_mobile.data.remote.AuthApi
 import com.example.findyourjob_mobile.data.remote.JobApi
 import com.example.findyourjob_mobile.data.remote.JwtAuthenticator
 import com.example.findyourjob_mobile.data.remote.JwtInterceptor
+import com.example.findyourjob_mobile.data.remote.ProfileApi
+import com.example.findyourjob_mobile.data.remote.RecruiterApi
 import com.example.findyourjob_mobile.data.remote.TokenManager
 import dagger.Module
 import dagger.Provides
@@ -71,4 +73,14 @@ object NetworkModule {
     @Singleton
     fun provideJobApi(retrofit: Retrofit): JobApi =
         retrofit.create(JobApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideProfileApi(retrofit: Retrofit): ProfileApi =
+        retrofit.create(ProfileApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideRecruiterApi(retrofit: Retrofit): RecruiterApi =
+        retrofit.create(RecruiterApi::class.java)
 }

@@ -6,6 +6,8 @@ public record ApplicationResponse(
     Long id,
     Long jobId,
     String jobTitle,
+    String company,
+    String location,
     Long candidateId,
     String candidateName,
     String status,

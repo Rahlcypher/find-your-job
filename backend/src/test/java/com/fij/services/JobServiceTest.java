@@ -1,5 +1,6 @@
 package com.fij.services;
 
+import com.fij.dto.ApplicationResponse;
 import com.fij.models.*;
 import com.fij.repositories.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -164,11 +165,14 @@ class JobServiceTest {
     void getMyApplications_ReturnsCandidateApplications() {
         setSecurityContext(candidate);
         Application app = new Application();
+        app.setId(1L);
+        app.setJob(job);
         app.setCandidate(candidate);
+        app.setStatus("PENDING");
         when(userRepository.findByEmail("candidate@test.com")).thenReturn(Optional.of(candidate));
         when(applicationRepository.findByCandidateId(1L)).thenReturn(List.of(app));
         
-        List<Application> result = jobService.getMyApplications();
+        List<ApplicationResponse> result = jobService.getMyApplications();
         
         assertEquals(1, result.size());
     }

@@ -22,6 +22,11 @@ class TokenManager @Inject constructor(
     companion object {
         private val TOKEN_KEY = stringPreferencesKey("jwt_token")
         private val REFRESH_TOKEN_KEY = stringPreferencesKey("refresh_token")
+        private val USER_ROLE_KEY = stringPreferencesKey("user_role")
+    }
+
+    val userRole: Flow<String?> = context.dataStore.data.map { prefs ->
+        prefs[USER_ROLE_KEY]
     }
 
     val token: Flow<String?> = context.dataStore.data.map { prefs ->
@@ -40,10 +45,11 @@ class TokenManager @Inject constructor(
         return context.dataStore.data.first()[REFRESH_TOKEN_KEY]
     }
 
-    suspend fun saveToken(token: String, refreshToken: String? = null) {
+    suspend fun saveToken(token: String, refreshToken: String? = null, role: String? = null) {
         context.dataStore.edit { prefs ->
             prefs[TOKEN_KEY] = token
             refreshToken?.let { prefs[REFRESH_TOKEN_KEY] = it }
+            role?.let { prefs[USER_ROLE_KEY] = it }
         }
     }
 
@@ -51,6 +57,7 @@ class TokenManager @Inject constructor(
         context.dataStore.edit { prefs ->
             prefs.remove(TOKEN_KEY)
             prefs.remove(REFRESH_TOKEN_KEY)
+            prefs.remove(USER_ROLE_KEY)
         }
     }
 }

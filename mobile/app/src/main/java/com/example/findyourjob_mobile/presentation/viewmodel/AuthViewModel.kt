@@ -36,6 +36,9 @@ class AuthViewModel @Inject constructor(
     val isLoggedIn = authRepository.isLoggedIn
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
+    val userRole = authRepository.userRole
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
     fun login(email: String, password: String) {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, error = null)

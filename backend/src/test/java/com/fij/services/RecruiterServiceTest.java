@@ -1,6 +1,8 @@
 package com.fij.services;
 
+import com.fij.dto.ApplicationResponse;
 import com.fij.dto.JobRequest;
+import com.fij.dto.JobResponse;
 import com.fij.models.*;
 import com.fij.repositories.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -35,160 +38,165 @@ class RecruiterServiceTest {
     @InjectMocks
     private RecruiterService recruiterService;
 
-    private User recruiter;
-    private Job job;
+    private User testRecruiter;
+    private User testCandidate;
+    private Job testJob;
 
     @BeforeEach
     void setUp() {
-        recruiter = new User();
-        recruiter.setId(1L);
-        recruiter.setEmail("recruiter@test.com");
-        recruiter.setRoles(Set.of(Role.ROLE_RECRUITER));
+        testRecruiter = new User();
+        testRecruiter.setId(1L);
+        testRecruiter.setEmail("recruiter@test.com");
+        testRecruiter.setFirstName("John");
+        testRecruiter.setLastName("Recruiter");
+        testRecruiter.setRoles(Set.of(Role.ROLE_RECRUITER));
 
-        job = new Job();
-        job.setId(1L);
-        job.setTitle("Developer");
-        job.setLocation("Paris");
-        job.setJobType("CDI");
-        job.setActive(true);
-        job.setRecruiter(recruiter);
-    }
+        testCandidate = new User();
+        testCandidate.setId(2L);
+        testCandidate.setEmail("candidate@test.com");
+        testCandidate.setFirstName("Jane");
+        testCandidate.setLastName("Candidate");
+        testCandidate.setRoles(Set.of(Role.ROLE_CANDIDATE));
 
-    private void setSecurityContext(User user) {
+        testJob = new Job();
+        testJob.setId(1L);
+        testJob.setTitle("Developer");
+        testJob.setCompany("TechCorp");
+        testJob.setLocation("Paris");
+        testJob.setActive(true);
+        testJob.setRecruiter(testRecruiter);
+
         SecurityContextHolder.getContext().setAuthentication(
-            new UsernamePasswordAuthenticationToken(user.getEmail(), null, List.of())
+            new UsernamePasswordAuthenticationToken("recruiter@test.com", null, List.of())
         );
     }
 
     @Test
+    void getMyJobs_ReturnsJobsForRecruiter() {
+        when(userRepository.findByEmail("recruiter@test.com")).thenReturn(Optional.of(testRecruiter));
+        when(jobRepository.findByRecruiterId(1L)).thenReturn(List.of(testJob));
+
+        List<JobResponse> result = recruiterService.getMyJobs();
+
+        assertEquals(1, result.size());
+        assertEquals("Developer", result.get(0).title());
+    }
+
+    @Test
     void createJob_Success_CreatesJob() {
-        setSecurityContext(recruiter);
         JobRequest request = new JobRequest(
-            "Developer", "Description", "Company", 
-            "Paris", 40000, 60000, "CDI", "Full-time", "Remote", 12
+            "Senior Developer", "Full-stack role", "TechCorp", "Lyon",
+            50000, 70000, "CDI", "Full-time", "Hybrid", 12
         );
-        when(userRepository.findByEmail("recruiter@test.com")).thenReturn(Optional.of(recruiter));
+
+        when(userRepository.findByEmail("recruiter@test.com")).thenReturn(Optional.of(testRecruiter));
         when(jobRepository.save(any(Job.class))).thenAnswer(i -> {
             Job j = i.getArgument(0);
             j.setId(1L);
             return j;
         });
-        
-        Job result = recruiterService.createJob(request);
-        
-        assertNotNull(result);
-        assertEquals("Developer", result.getTitle());
-        assertEquals("Company", result.getCompany());
-        assertTrue(result.isActive());
-    }
 
-    @Test
-    void getMyJobs_ReturnsRecruiterJobs() {
-        setSecurityContext(recruiter);
-        when(userRepository.findByEmail("recruiter@test.com")).thenReturn(Optional.of(recruiter));
-        when(jobRepository.findByRecruiterId(1L)).thenReturn(List.of(job));
-        
-        List<Job> result = recruiterService.getMyJobs();
-        
-        assertEquals(1, result.size());
-        assertEquals("Developer", result.get(0).getTitle());
-    }
+        JobResponse result = recruiterService.createJob(request);
 
-    @Test
-    void getJob_Success_ReturnsJob() {
-        setSecurityContext(recruiter);
-        when(userRepository.findByEmail("recruiter@test.com")).thenReturn(Optional.of(recruiter));
-        when(jobRepository.findById(1L)).thenReturn(Optional.of(job));
-        
-        Job result = recruiterService.getJob(1L);
-        
-        assertEquals("Developer", result.getTitle());
-    }
-
-    @Test
-    void getJob_NotOwner_ThrowsException() {
-        User otherRecruiter = new User();
-        otherRecruiter.setId(2L);
-        otherRecruiter.setEmail("other@test.com");
-        
-        setSecurityContext(otherRecruiter);
-        when(userRepository.findByEmail("other@test.com")).thenReturn(Optional.of(otherRecruiter));
-        when(jobRepository.findById(1L)).thenReturn(Optional.of(job));
-        
-        assertThrows(RuntimeException.class, () -> recruiterService.getJob(1L));
+        assertEquals("Senior Developer", result.title());
+        assertTrue(result.active());
+        verify(jobRepository).save(any(Job.class));
     }
 
     @Test
     void updateJob_Success_UpdatesJob() {
-        setSecurityContext(recruiter);
         JobRequest request = new JobRequest(
-            "Senior Developer", "New Description", "Company",
-            "Lyon", 50000, 80000, "CDI", "Full-time", "On-site", 24
+            "Lead Developer", "Updated description", "TechCorp", "Paris",
+            60000, 80000, "CDI", "Full-time", "Remote", 24
         );
-        when(userRepository.findByEmail("recruiter@test.com")).thenReturn(Optional.of(recruiter));
-        when(jobRepository.findById(1L)).thenReturn(Optional.of(job));
+
+        when(userRepository.findByEmail("recruiter@test.com")).thenReturn(Optional.of(testRecruiter));
+        when(jobRepository.findById(1L)).thenReturn(Optional.of(testJob));
         when(jobRepository.save(any(Job.class))).thenAnswer(i -> i.getArgument(0));
-        
-        Job result = recruiterService.updateJob(1L, request);
-        
-        assertEquals("Senior Developer", result.getTitle());
-        assertEquals("Lyon", result.getLocation());
+
+        JobResponse result = recruiterService.updateJob(1L, request);
+
+        assertEquals("Lead Developer", result.title());
+        assertEquals("Remote", result.remotePolicy());
     }
 
     @Test
-    void deleteJob_Success_DeactivatesJob() {
-        setSecurityContext(recruiter);
-        when(userRepository.findByEmail("recruiter@test.com")).thenReturn(Optional.of(recruiter));
-        when(jobRepository.findById(1L)).thenReturn(Optional.of(job));
-        when(jobRepository.save(any(Job.class))).thenAnswer(i -> i.getArgument(0));
+    void updateJob_NotAuthorized_ThrowsException() {
+        User otherRecruiter = new User();
+        otherRecruiter.setId(99L);
         
+        Job otherJob = new Job();
+        otherJob.setId(2L);
+        otherJob.setRecruiter(otherRecruiter);
+
+        JobRequest request = new JobRequest(
+            "Developer", "Desc", "Company", "Paris",
+            null, null, "CDI", null, null, null
+        );
+
+        when(userRepository.findByEmail("recruiter@test.com")).thenReturn(Optional.of(testRecruiter));
+        when(jobRepository.findById(2L)).thenReturn(Optional.of(otherJob));
+
+        assertThrows(RuntimeException.class, () -> recruiterService.updateJob(2L, request));
+    }
+
+    @Test
+    void deleteJob_Success_DeletesJob() {
+        when(userRepository.findByEmail("recruiter@test.com")).thenReturn(Optional.of(testRecruiter));
+        when(jobRepository.findById(1L)).thenReturn(Optional.of(testJob));
+
         recruiterService.deleteJob(1L);
-        
-        assertFalse(job.isActive());
-        verify(jobRepository).save(job);
+
+        verify(jobRepository).delete(testJob);
     }
 
     @Test
     void getApplicationsForJob_ReturnsApplications() {
-        setSecurityContext(recruiter);
         Application app = new Application();
-        app.setJob(job);
-        when(userRepository.findByEmail("recruiter@test.com")).thenReturn(Optional.of(recruiter));
-        when(jobRepository.findById(1L)).thenReturn(Optional.of(job));
+        app.setId(1L);
+        app.setJob(testJob);
+        app.setCandidate(testCandidate);
+        app.setStatus("PENDING");
+        app.setAppliedAt(LocalDateTime.now());
+
+        when(userRepository.findByEmail("recruiter@test.com")).thenReturn(Optional.of(testRecruiter));
+        when(jobRepository.findById(1L)).thenReturn(Optional.of(testJob));
         when(applicationRepository.findByJobId(1L)).thenReturn(List.of(app));
-        
-        List<Application> result = recruiterService.getApplicationsForJob(1L);
-        
+
+        List<ApplicationResponse> result = recruiterService.getApplicationsForJob(1L);
+
         assertEquals(1, result.size());
+        assertEquals("PENDING", result.get(0).status());
     }
 
     @Test
     void updateApplicationStatus_Success_UpdatesStatus() {
-        setSecurityContext(recruiter);
         Application app = new Application();
-        app.setJob(job);
+        app.setId(1L);
+        app.setJob(testJob);
+        app.setCandidate(testCandidate);
         app.setStatus("PENDING");
-        when(userRepository.findByEmail("recruiter@test.com")).thenReturn(Optional.of(recruiter));
+        app.setAppliedAt(LocalDateTime.now());
+
+        when(userRepository.findByEmail("recruiter@test.com")).thenReturn(Optional.of(testRecruiter));
         when(applicationRepository.findById(1L)).thenReturn(Optional.of(app));
         when(applicationRepository.save(any(Application.class))).thenAnswer(i -> i.getArgument(0));
-        
-        Application result = recruiterService.updateApplicationStatus(1L, "INTERVIEW");
-        
-        assertEquals("INTERVIEW", result.getStatus());
+
+        ApplicationResponse result = recruiterService.updateApplicationStatus(1L, "ACCEPTED");
+
+        assertEquals("ACCEPTED", result.status());
     }
 
     @Test
-    void updateApplicationStatus_NotOwner_ThrowsException() {
-        User otherRecruiter = new User();
-        otherRecruiter.setId(2L);
-        
+    void updateApplicationStatus_InvalidStatus_ThrowsException() {
         Application app = new Application();
-        app.setJob(job);
-        
-        setSecurityContext(otherRecruiter);
-        when(userRepository.findByEmail("other@test.com")).thenReturn(Optional.of(otherRecruiter));
+        app.setId(1L);
+        app.setJob(testJob);
+        app.setCandidate(testCandidate);
+
+        when(userRepository.findByEmail("recruiter@test.com")).thenReturn(Optional.of(testRecruiter));
         when(applicationRepository.findById(1L)).thenReturn(Optional.of(app));
-        
-        assertThrows(RuntimeException.class, () -> recruiterService.updateApplicationStatus(1L, "REJECTED"));
+
+        assertThrows(RuntimeException.class, () -> recruiterService.updateApplicationStatus(1L, "INVALID"));
     }
 }

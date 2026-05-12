@@ -136,7 +136,7 @@ class Phase1IntegrationTest {
         mockMvc.perform(put("/api/users/me")
                 .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("""
+                .content("""                                                                                                                                                              
                     {"lastName":"NewName"}
                     """))
                 .andExpect(status().isOk())

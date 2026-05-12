@@ -127,7 +127,7 @@ fun JobDetailScreen(
                         fontWeight = FontWeight.Bold
                     )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
 
                     Text(
                         text = job.company ?: "Entreprise",
@@ -137,21 +137,26 @@ fun JobDetailScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    InfoRow(icon = Icons.Default.LocationOn, label = "Lieu", value = job.location ?: "Non spécifié")
-                    InfoRow(icon = Icons.Default.Work, label = "Type", value = job.jobType ?: "Non spécifié")
-                    InfoRow(icon = Icons.Default.Schedule, label = "Horaires", value = job.workSchedule ?: "Non spécifié")
-                    InfoRow(icon = Icons.Default.Home, label = "Télétravail", value = job.remotePolicy ?: "Non spécifié")
-
-                    if (job.salaryMin != null && job.salaryMax != null) {
-                        InfoRow(
-                            icon = Icons.Default.AttachMoney,
-                            label = "Salaire",
-                            value = "${job.salaryMin}€ - ${job.salaryMax}€"
-                        )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        job.location?.let { TagInfo(icon = Icons.Default.LocationOn, value = it) }
+                        job.jobType?.let { TagInfo(icon = Icons.Default.Work, value = it) }
+                        job.workSchedule?.let { TagInfo(icon = Icons.Default.Schedule, value = it) }
                     }
 
-                    if (job.duration != null) {
-                        InfoRow(icon = Icons.Default.Timer, label = "Durée", value = "${job.duration} mois")
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        job.remotePolicy?.let { TagInfo(icon = Icons.Default.Home, value = it) }
+                        if (job.salaryMin != null && job.salaryMax != null) {
+                            TagInfo(icon = Icons.Default.AttachMoney, value = "${job.salaryMin}€-${job.salaryMax}€")
+                        }
+                        job.duration?.let { TagInfo(icon = Icons.Default.Timer, value = "${it} mois") }
                     }
 
                     Spacer(modifier = Modifier.height(24.dp))
@@ -187,33 +192,29 @@ fun JobDetailScreen(
 }
 
 @Composable
-fun InfoRow(
+fun TagInfo(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
-    label: String,
     value: String
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
+    Surface(
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        shape = MaterialTheme.shapes.small
     ) {
-        Icon(
-            icon,
-            contentDescription = null,
-            modifier = Modifier.size(20.dp),
-            tint = MaterialTheme.colorScheme.primary
-        )
-        Spacer(modifier = Modifier.width(12.dp))
-        Column {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+        Row(
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                icon,
+                contentDescription = null,
+                modifier = Modifier.size(16.dp),
+                tint = MaterialTheme.colorScheme.onSecondaryContainer
             )
+            Spacer(modifier = Modifier.width(4.dp))
             Text(
                 text = value,
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSecondaryContainer
             )
         }
     }

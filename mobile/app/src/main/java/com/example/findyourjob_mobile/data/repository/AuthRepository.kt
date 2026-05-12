@@ -11,17 +11,13 @@ import kotlinx.serialization.json.Json
 import javax.inject.Inject
 import javax.inject.Singleton
 
-sealed class Result<out T> {
-    data class Success<T>(val data: T) : Result<T>()
-    data class Error(val message: String, val code: Int? = null) : Result<Nothing>()
-}
-
 @Singleton
 class AuthRepository @Inject constructor(
     private val authApi: AuthApi,
     private val tokenManager: TokenManager
 ) {
     val isLoggedIn: Flow<Boolean> = tokenManager.token.map { it != null }
+    val userRole: Flow<String?> = tokenManager.userRole
 
     private fun parseErrorMessage(e: retrofit2.HttpException): String {
         return try {
@@ -41,7 +37,8 @@ class AuthRepository @Inject constructor(
     suspend fun login(email: String, password: String): Result<AuthResponse> {
         return try {
             val response = authApi.login(LoginRequest(email, password))
-            tokenManager.saveToken(response.token, response.refreshToken)
+            val role = response.roles.firstOrNull()
+            tokenManager.saveToken(response.token, response.refreshToken, role)
             Result.Success(response)
         } catch (e: retrofit2.HttpException) {
             Result.Error(parseErrorMessage(e), e.code())
@@ -61,7 +58,8 @@ class AuthRepository @Inject constructor(
             val response = authApi.register(
                 RegisterRequest(email, password, firstName, lastName, roles)
             )
-            tokenManager.saveToken(response.token, response.refreshToken)
+            val role = response.roles.firstOrNull()
+            tokenManager.saveToken(response.token, response.refreshToken, role)
             Result.Success(response)
         } catch (e: retrofit2.HttpException) {
             Result.Error(parseErrorMessage(e), e.code())
