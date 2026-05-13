@@ -1,5 +1,37 @@
 # FIJ - Journal d'avancement
 
+## 2026-05-13 - Déploiement Render
+
+### ✅ Réalisé
+- **Déploiement backend** sur Render (plan gratuit)
+  - Config via Docker + env vars
+  - Correction `Network is unreachable` → utilisation DB PostgreSQL Render
+  - URL publique : `https://find-your-job-924c.onrender.com`
+- **Base de données** : Render PostgreSQL (`fyj_db`)
+  - Pas de problème réseau (même infrastructure)
+  - DataLoader exécuté → users de test disponibles
+- **Mobile** : URL API mise à jour vers Render
+- **Git** : `.gitignore` ajouté, `target/` retiré du tracking
+
+### 📝 Fichiers modifiés
+- `mobile/app/build.gradle.kts` (BASE_URL → Render)
+- `.gitignore` (nouveau)
+
+---
+
+## 2026-05-12 - Déploiement Azure
+
+### ✅ Réalisé
+- **Azure Container Registry** : `fyjregistry`
+- **Azure Container Apps** : `fyj-backend` + `fyj-db`
+- Résolution : activé ingress interne sur la DB (`external: false`)
+- Test : backend accessible, login fonctionnel
+
+### ❌ Abandonné (coût)
+- Azure Container Apps fonctionnel mais non utilisé (Render gratuit suffit)
+
+---
+
 ## 2026-05-09 - Dockerisation du backend
 
 ### ✅ Réalisé

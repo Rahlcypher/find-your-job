@@ -61,7 +61,11 @@
 - [ ] Créer ChatListScreen
 - [ ] Créer ConversationScreen
 
-## Phase 9 - Sécurité & Robustesse
+## Phase 9 - Déploiement
+- [x] URL API mise à jour vers Render
+- [ ] Tester l'APK avec le backend Render
+
+## Phase 10 - Sécurité & Robustesse
 - [ ] Gestion 401 → auto logout
 - [ ] Gestion 403
 - [ ] Retry policy

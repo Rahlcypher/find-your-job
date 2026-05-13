@@ -53,3 +53,10 @@
 - [x] DataLoader (seed data)
 - [x] Phase4IntegrationTest
 - Tests unitaires à compléter
+
+## Déploiement
+- [x] Dockerfile (multi-stage)
+- [x] docker-compose.yml
+- [x] Azure Container Apps (testé)
+- [x] Render (production)
+- [x] URL publique : `https://find-your-job-924c.onrender.com`
